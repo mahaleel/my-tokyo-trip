@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tokyo Trip">
+<title>Tokyo Trip</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;max-width:430px;margin:0 auto;min-height:100vh}
+.header{background:#D0021B;color:#fff;padding:16px;text-align:center;position:sticky;top:0;z-index:100}
+.header h1{font-size:18px;font-weight:700}
+.header p{font-size:12px;opacity:.85;margin-top:2px}
+.nav{display:flex;overflow-x:auto;gap:4px;padding:10px 12px;background:#fff;border-bottom:1px solid #eee;scrollbar-width:none;position:sticky;top:62px;z-index:99}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex-shrink:0;padding:7px 13px;border-radius:20px;border:1px solid #ddd;background:#fff;font-size:12px;cursor:pointer;white-space:nowrap;color:#666;font-weight:500}
+.nav-btn.active{background:#D0021B;color:#fff;border-color:#D0021B;font-weight:700}
+.content{padding:12px}
+.section-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 8px}
+
+/* DAYS */
+.day-nav{display:flex;overflow-x:auto;gap:6px;margin-bottom:12px;padding-bottom:4px;scrollbar-width:none}
+.day-nav::-webkit-scrollbar{display:none}
+.day-btn{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:#fff;font-size:13px;cursor:pointer;white-space:nowrap;color:#666;font-weight:500}
+.day-btn.active{background:#D0021B;color:#fff;border-color:#D0021B;font-weight:700}
+.day-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:12px;background:#fff;border-radius:12px;border-left:4px solid #D0021B}
+.day-badge{background:#D0021B;color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;flex-shrink:0}
+.day-title{font-size:14px;font-weight:700;color:#111;line-height:1.3}
+.day-sub{font-size:11px;color:#888;margin-top:2px}
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#eee}
+.tl-item{position:relative;margin-bottom:10px}
+.tl-item::before{content:'';position:absolute;left:-22px;top:8px;width:8px;height:8px;border-radius:50%;background:#D0021B;border:2px solid #f5f5f5;box-shadow:0 0 0 1.5px #D0021B}
+.tl-card{background:#fff;border:1px solid #eee;border-radius:10px;padding:10px 12px;cursor:pointer}
+.tl-time{font-size:11px;color:#D0021B;font-weight:700;margin-bottom:3px}
+.tl-act{font-size:14px;font-weight:600;color:#111}
+.tl-transport{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#888;background:#f5f5f5;padding:3px 8px;border-radius:10px;margin-top:6px}
+.tl-note{font-size:13px;color:#555;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0;display:none;line-height:1.5}
+.tl-note.open{display:block}
+.tip-card{background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid #D0021B}
+.tip-title{font-size:13px;font-weight:700;color:#111;margin-bottom:4px}
+.tip-text{font-size:13px;color:#555;line-height:1.5}
+.vibe-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.vibe-item{background:#fff;border-radius:10px;padding:10px}
+.vibe-k{font-size:10px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.vibe-v{font-size:12px;color:#111;font-weight:600}
+
+/* PLACE CARDS */
+.place-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:14px;margin-bottom:10px}
+.place-name{font-size:15px;font-weight:700;color:#111}
+.place-meta{font-size:11px;color:#D0021B;margin-top:3px;line-height:1.5}
+.place-desc{font-size:13px;color:#555;margin-top:6px;line-height:1.5}
+.place-tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+.place-tag{font-size:11px;background:#f5f5f5;border:1px solid #eee;border-radius:10px;padding:3px 8px;color:#666}
+.place-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:6px}
+.badge-shop{background:#e3eeff;color:#1a4fa0}
+.badge-food{background:#fff3e0;color:#c65500}
+.badge-cafe{background:#e8f4e8;color:#2a6e2a}
+.badge-curry{background:#fce8e8;color:#a01a1a}
+.badge-anime{background:#f0e8ff;color:#5a1a9e}
+.badge-snack{background:#fff8e1;color:#856d00}
+
+/* TAB ROWS */
+.tab-row{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.tab-row::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:8px 14px;border-radius:10px;border:1px solid #eee;background:#fff;font-size:12px;cursor:pointer;color:#888;font-weight:500}
+.tab-btn.active{background:#D0021B;color:#fff;border-color:#D0021B;font-weight:700}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* AIRPORT */
+.airport-card{background:#fff;border-radius:12px;border:1px solid #eee;padding:14px;margin-bottom:10px}
+.airport-card h3{font-size:14px;font-weight:700;color:#D0021B;margin-bottom:10px}
+.timeline-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;align-items:flex-start}
+.timeline-row:last-child{border-bottom:none}
+.tl-t{font-size:12px;font-weight:700;color:#D0021B;min-width:90px;flex-shrink:0;padding-top:1px}
+.tl-d{font-size:13px;color:#333;line-height:1.5;flex:1}
+.step-row{display:flex;gap:10px;padding:6px 0;align-items:flex-start}
+.step-num{width:22px;height:22px;border-radius:50%;background:#D0021B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text{font-size:13px;color:#333;line-height:1.5;flex:1}
+.checklist-static{padding:8px 0}
+.checklist-static-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:13px;color:#333}
+.checklist-static-row:last-child{border-bottom:none}
+.check-icon{color:#D0021B;font-size:14px;flex-shrink:0}
+.info-box{background:#fff8f8;border:1px solid #ffd0d0;border-radius:10px;padding:12px;margin-bottom:10px}
+.info-box p{font-size:13px;color:#333;line-height:1.6}
+
+/* KONBINI */
+.konbini-card{background:#fff;border:1px solid #eee;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.k-store{font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;flex-shrink:0;margin-top:2px}
+.k-store.fm{background:#e8f4e8;color:#2a6e2a}
+.k-store.seven{background:#fff3e0;color:#c65500}
+.k-store.lawson{background:#e3eeff;color:#1a4fa0}
+.k-store.any{background:#f5f5f5;color:#666}
+.k-item{font-size:13px;font-weight:600;color:#111}
+.k-why{font-size:12px;color:#666;margin-top:3px;line-height:1.4}
+
+/* NOTES + CHECKLIST */
+.note-section{margin-bottom:16px}
+.note-sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.note-cat{font-size:11px;font-weight:700;color:#D0021B;text-transform:uppercase;letter-spacing:.5px}
+.note-add-btn{display:flex;align-items:center;gap:4px;font-size:12px;color:#666;cursor:pointer;padding:4px 10px;border-radius:10px;border:1px solid #ddd;background:#fff}
+.note-wrap{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eee}
+.note-row{display:flex;align-items:center;border-bottom:1px solid #f5f5f5}
+.note-row:last-child{border-bottom:none}
+.note-input{flex:1;font-size:14px;color:#111;padding:12px;background:transparent;border:none;outline:none;font-family:inherit}
+.note-input.editing{background:#fffbf0}
+.note-actions{display:flex;flex-shrink:0}
+.icon-btn{width:40px;height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:transparent;color:#aaa;font-size:16px}
+.icon-btn.save{color:#1a7a3c}
+.new-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.new-input{flex:1;font-size:14px;padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#111;font-family:inherit;outline:none}
+.new-input:focus{border-color:#D0021B}
+.save-btn{padding:10px 14px;border-radius:10px;border:none;background:#D0021B;color:#fff;font-size:13px;cursor:pointer;font-weight:700}
+.cancel-btn{padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#888;font-size:13px;cursor:pointer}
+.cl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cl-progress{font-size:12px;color:#888}
+.cl-wrap{background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eee;margin-bottom:8px}
+.cl-row{display:flex;align-items:center;border-bottom:1px solid #f5f5f5}
+.cl-row:last-child{border-bottom:none}
+.cl-tap{padding:12px;cursor:pointer;flex-shrink:0}
+.cl-box{width:20px;height:20px;border-radius:5px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.cl-box.checked{background:#D0021B;border-color:#D0021B;color:#fff}
+.cl-text{flex:1;font-size:14px;color:#111;padding:12px 4px;background:transparent;border:none;outline:none;font-family:inherit}
+.cl-text.done{text-decoration:line-through;color:#aaa}
+.cl-text.editing{background:#fffbf0;padding:12px 8px}
+.cl-actions{display:flex;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Tokyo Trip 🗾</h1>
+  <p>June 8–15 · 8 Days · Solo Adventure</p>
+</div>
+<div class="nav" id="mainNav">
+  <button class="nav-btn active" onclick="showSection('days')">Days</button>
+  <button class="nav-btn" onclick="showSection('airport')">Airport</button>
+  <button class="nav-btn" onclick="showSection('shinjuku')">Shinjuku</button>
+  <button class="nav-btn" onclick="showSection('ueno')">Ueno & Akiba</button>
+  <button class="nav-btn" onclick="showSection('konbini')">Konbini</button>
+  <button class="nav-btn" onclick="showSection('notes')">Notes</button>
+  <button class="nav-btn" onclick="showSection('checklist')">Checklist</button>
+</div>
+<div class="content">
+
+  <!-- DAYS -->
+  <div id="section-days">
+    <div class="day-nav" id="dayNav"></div>
+    <div id="dayContent"></div>
+  </div>
+
+  <!-- AIRPORT -->
+  <div id="section-airport" style="display:none">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="showAirTab('narita')">Narita Arrival</button>
+      <button class="tab-btn" onclick="showAirTab('departure')">Departure Day</button>
+      <button class="tab-btn" onclick="showAirTab('lounge')">JCB Lounge</button>
+      <button class="tab-btn" onclick="showAirTab('checklist')">Checklist</button>
+    </div>
+    <div id="air-narita" class="tab-content active">
+      <div class="airport-card">
+        <h3>Narita Arrival → Shinjuku</h3>
+        <div class="step-row"><div class="step-num">1</div><div class="step-text">After customs, follow JR Line / Narita Express signs</div></div>
+        <div class="step-row"><div class="step-num">2</div><div class="step-text">Go down escalator/elevator to train station level</div></div>
+        <div class="step-row"><div class="step-num">3</div><div class="step-text">Find JR EAST counter or green ticket machine</div></div>
+        <div class="step-row"><div class="step-num">4</div><div class="step-text">Buy Narita Express ticket to Shinjuku Station</div></div>
+        <div class="step-row"><div class="step-num">5</div><div class="step-text">Choose ordinary reserved seat — check platform/car/seat number carefully</div></div>
+        <div class="step-row"><div class="step-num">6</div><div class="step-text">Board Narita Express to Shinjuku (~1hr 20min)</div></div>
+        <div class="step-row"><div class="step-num">7</div><div class="step-text">Arrive at Shinjuku Station → JR East Exit</div></div>
+        <div class="step-row"><div class="step-num">8</div><div class="step-text">Use GO App or Uber taxi to APA Hotel — recommended with luggage on first night</div></div>
+      </div>
+      <div class="info-box"><p>First Tokyo night + luggage + Shinjuku can feel overwhelming — taxi is the right call. Backup stations: Seibu Shinjuku Station or Higashi-Shinjuku Station.</p></div>
+    </div>
+    <div id="air-departure" class="tab-content">
+      <div class="airport-card">
+        <h3>Departure Day Timeline (Jun 15)</h3>
+        <div class="timeline-row"><div class="tl-t">8:30 AM</div><div class="tl-d">Check out from APA Hotel Shinjuku Kabukicho Tower</div></div>
+        <div class="timeline-row"><div class="tl-t">9:00–9:30 AM</div><div class="tl-d">Leave Shinjuku — take Narita Express (N'EX), easiest with luggage. Travel time ~1hr 20–30 min.</div></div>
+        <div class="timeline-row"><div class="tl-t">11:00 AM</div><div class="tl-d">Arrive at Narita Terminal 2</div></div>
+        <div class="timeline-row"><div class="tl-t">11:00–12:00 PM</div><div class="tl-d">Use the JCB Lounge — coffee, snacks, restroom, charge devices, relax</div></div>
+        <div class="timeline-row"><div class="tl-t">12:00 PM</div><div class="tl-d">Head to check-in / security</div></div>
+        <div class="timeline-row"><div class="tl-t">1:25 PM</div><div class="tl-d">Be at the gate — boarding usually starts ~1 hour before departure</div></div>
+        <div class="timeline-row"><div class="tl-t">2:25 PM</div><div class="tl-d">✈️ Flight departs (PR431 → Manila)</div></div>
+      </div>
+      <div class="airport-card">
+        <h3>How to Find the JCB Lounge at Narita T2</h3>
+        <div class="step-row"><div class="step-num">1</div><div class="step-text">Enter NAIA Terminal 1 → check in baggage → pass immigration → pass final security</div></div>
+        <div class="step-row"><div class="step-num">2</div><div class="step-text">Walk toward the boarding gates — go to International Departure Area (Airside)</div></div>
+        <div class="step-row"><div class="step-num">3</div><div class="step-text">Head to the East Concourse</div></div>
+        <div class="step-row"><div class="step-num">4</div><div class="step-text">Located next to Gate 2 / across the Gate 2 area</div></div>
+        <div class="step-row"><div class="step-num">5</div><div class="step-text">Present: Metrobank Travel Visa Signature or eligible JCB card + boarding pass + passport</div></div>
+      </div>
+    </div>
+    <div id="air-lounge" class="tab-content">
+      <div class="airport-card">
+        <h3>JCB Lounge Tips</h3>
+        <div class="info-box" style="margin-bottom:10px"><p>For a solo traveler arriving at Narita around 11:00 AM for a 2:25 PM flight — very comfortable timing, not rushed but not excessively early.</p></div>
+        <p style="font-size:13px;font-weight:700;color:#333;margin-bottom:8px">Use the lounge mainly to:</p>
+        <div class="step-row"><div class="step-num">1</div><div class="step-text">Have brunch / lunch</div></div>
+        <div class="step-row"><div class="step-num">2</div><div class="step-text">Charge everything to 100%</div></div>
+        <div class="step-row"><div class="step-num">3</div><div class="step-text">Use the restroom before security</div></div>
+        <div class="step-row"><div class="step-num">4</div><div class="step-text">Organize receipts and tax-free purchases</div></div>
+        <p style="font-size:13px;color:#555;margin-top:10px;line-height:1.5">This avoids buying expensive airport food afterward. Cards accepted: Metrobank Travel Visa Signature or eligible JCB card.</p>
+      </div>
+    </div>
+    <div id="air-checklist" class="tab-content">
+      <div class="airport-card">
+        <h3>Before Leaving the Hotel</h3>
+        <div class="checklist-static">
+          <div class="checklist-static-row"><span class="check-icon">✅</span>Passport</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>Boarding pass / PAL booking</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>BDO JCB Platinum</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>RCBC JCB Platinum (backup)</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>Metrobank Travel Visa Signature (backup)</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>Power bank (carry-on only)</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>Visit Japan Web QR (keep screenshots)</div>
+          <div class="checklist-static-row"><span class="check-icon">✅</span>Hotel bill/receipt if needed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHINJUKU -->
+  <div id="section-shinjuku" style="display:none">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="showShinjTab('shopping')">Shopping</button>
+      <button class="tab-btn" onclick="showShinjTab('dessert')">Dessert/Café</button>
+      <button class="tab-btn" onclick="showShinjTab('curry')">Curry</button>
+      <button class="tab-btn" onclick="showShinjTab('anime')">Anime</button>
+    </div>
+    <div id="shinj-shopping" class="tab-content active">
+      <div class="place-card"><span class="place-badge badge-shop">Shopping · 24hrs</span><div class="place-name">Don Quijote Shinjuku Kabukicho</div><div class="place-meta">5–10 mins from hotel</div><div class="place-desc">Best for snacks, skincare, souvenirs, medicine, random Japan finds.</div></div>
+      <div class="place-card"><span class="place-badge badge-shop">Shopping</span><div class="place-name">Isetan Shinjuku</div><div class="place-meta">Hours: 10:00 AM – 8:00 PM</div><div class="place-desc">Luxury shopping + amazing food basement. Japanese cosmetics and designer brands. Great for gifts.</div></div>
+      <div class="place-card"><span class="place-badge badge-shop">Electronics</span><div class="place-name">BicCamera Shinjuku East Exit</div><div class="place-meta">Hours: 10:00 AM – 10:00 PM</div><div class="place-desc">Electronics, gadgets, beauty devices. Tax-free shopping. Cameras, headphones, hair tools.</div></div>
+      <div class="place-card"><span class="place-badge badge-shop">Mall</span><div class="place-name">NEWoMan Shinjuku</div><div class="place-meta">Hours: 11:00 AM – 8:30 PM</div><div class="place-desc">Stylish modern mall. Fashion, cafés, minimalist Tokyo vibe. Safer/calmer atmosphere.</div></div>
+    </div>
+    <div id="shinj-dessert" class="tab-content">
+      <div class="place-card"><span class="place-badge badge-cafe">Café · Late Night</span><div class="place-name">Parfaiteria beL</div><div class="place-meta">~12–15 mins walk from hotel · Hours: 3:00 PM – 12:00 AM</div><div class="place-desc">Best late-night parfaits. Most aesthetic dessert experience.</div><div class="place-tags"><span class="place-tag">Strawberry parfait</span><span class="place-tag">Pistachio parfait</span><span class="place-tag">Seasonal parfaits</span></div></div>
+      <div class="place-card"><span class="place-badge badge-cafe">Café · Retro</span><div class="place-name">Coffee Seibu</div><div class="place-meta">~8–10 mins walk from hotel · Hours: 11:00 AM – 11:30 PM</div><div class="place-desc">Retro old-Tokyo café vibe. Famous coffee jelly + cream sodas.</div><div class="place-tags"><span class="place-tag">Coffee jelly</span><span class="place-tag">Cream soda</span><span class="place-tag">Napolitan pasta + coffee set</span></div></div>
+      <div class="place-card"><span class="place-badge badge-cafe">Café</span><div class="place-name">After All Coffee</div><div class="place-meta">~15 mins walk from hotel · Hours: 9:00 AM – 11:00 PM</div><div class="place-desc">Famous Basque cheesecake. Quiet modern café atmosphere.</div><div class="place-tags"><span class="place-tag">Basque cheesecake</span><span class="place-tag">Flat white</span><span class="place-tag">Café latte</span></div></div>
+      <div class="place-card"><span class="place-badge badge-cafe">Fruits Parlor</span><div class="place-name">Shinjuku Takano Fruits Parlor</div><div class="place-meta">~10 mins walk from hotel · Hours: ~11:00 AM – 9:00 PM</div><div class="place-desc">Luxury Japanese fruit parfaits. Famous strawberry/melon desserts.</div><div class="place-tags"><span class="place-tag">Strawberry parfait</span><span class="place-tag">Melon parfait</span><span class="place-tag">Fruit sandwich</span></div></div>
+      <div class="place-card"><span class="place-badge badge-cafe">Dessert · Late Night</span><div class="place-name">Honey Toast Cafe Shinjuku Yasukuni-dori</div><div class="place-meta">~5–7 mins walk from hotel · Hours: 10:00 AM – 12:00 AM</div><div class="place-desc">Giant honey toast desserts. Best easiest late-night dessert near your hotel.</div><div class="place-tags"><span class="place-tag">Classic honey toast</span><span class="place-tag">Matcha honey toast</span><span class="place-tag">Vanilla ice cream topping</span></div></div>
+    </div>
+    <div id="shinj-curry" class="tab-content">
+      <div class="place-card"><span class="place-badge badge-curry">Curry</span><div class="place-name">Epitaph Curry</div><div class="place-meta">~10–15 mins walk from hotel · Hours: 11:30 AM – 2:30 PM / 5:30 PM – 8:30 PM</div><div class="place-desc">Authentic Tokyo spice curry.</div><div class="place-tags"><span class="place-tag">Pork vindaloo</span><span class="place-tag">2-curry combo plate</span><span class="place-tag">Chai</span></div></div>
+      <div class="place-card"><span class="place-badge badge-curry">Soup Curry</span><div class="place-name">Sapporo Soup Curry Tokyo Dominica</div><div class="place-meta">~10–12 mins walk from hotel · Hours: 11:30 AM – 10:30 PM</div><div class="place-desc">Famous Hokkaido soup curry.</div><div class="place-tags"><span class="place-tag">Chicken soup curry</span><span class="place-tag">Vegetable soup curry</span><span class="place-tag">Medium spice first try</span></div></div>
+      <div class="place-card"><span class="place-badge badge-curry">Katsu Curry</span><div class="place-name">とんかつ檍のカレー屋 いっぺこっぺ 西新宿店</div><div class="place-meta">~15 mins walk from hotel · Hours: 11:00 AM – 3:00 PM / 5:30 PM – 8:00 PM</div><div class="place-desc">Best crispy katsu curry.</div><div class="place-tags"><span class="place-tag">Rosu katsu curry</span><span class="place-tag">Pork loin cutlet curry</span><span class="place-tag">Add soft-boiled egg</span></div></div>
+      <div class="place-card"><span class="place-badge badge-curry">Curry · Easy</span><div class="place-name">CoCo Ichibanya Shinjuku Kabukicho</div><div class="place-meta">~5 mins walk from hotel · Hours: 8:00 AM – 10:30 PM</div><div class="place-desc">Easiest and safest solo curry option.</div><div class="place-tags"><span class="place-tag">Cheese curry</span><span class="place-tag">Pork cutlet curry</span><span class="place-tag">Spice level 2–3 first try</span></div></div>
+      <div class="place-card"><span class="place-badge badge-curry">Hidden Gem</span><div class="place-name">House of the White Dragon</div><div class="place-meta">~8–10 mins walk from hotel · Hours: 12:00 PM – 2:30 PM / 6:00 PM – 10:00 PM</div><div class="place-desc">Hidden gem curry bar.</div><div class="place-tags"><span class="place-tag">Signature Japanese curry</span><span class="place-tag">Curry + drink set</span><span class="place-tag">Seasonal specials</span></div></div>
+    </div>
+    <div id="shinj-anime" class="tab-content">
+      <div class="place-card"><span class="place-badge badge-anime">Anime</span><div class="place-name">Animate Shinjuku</div><div class="place-meta">Hours: 11:00 AM – 8:00 PM</div><div class="place-desc">Best anime merch shopping. Re:Zero, figures, keychains, manga, acrylic stands. Very solo traveler friendly.</div></div>
+      <div class="place-card"><span class="place-badge badge-anime">Anime · Secondhand</span><div class="place-name">Shinjuku Marui Annex</div><div class="place-meta">Hours: 11:00 AM – 8:00 PM</div><div class="place-desc">Anime + collectibles + gashapon. Good alternative to Akihabara. Great for secondhand merch.</div></div>
+      <div class="place-card"><span class="place-badge badge-anime">Anime · Figures</span><div class="place-name">Lashinbang Shinjuku Marui Annex</div><div class="place-meta">~10–15 mins from hotel · Hours: ~11:00 AM – 8:00 PM</div><div class="place-desc">Inside/near Shinjuku Marui Annex area. Anime merch + figures.</div></div>
+    </div>
+  </div>
+
+  <!-- UENO & AKIHABARA -->
+  <div id="section-ueno" style="display:none">
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="showUenoTab('uenofood')">Ueno Food</button>
+      <button class="tab-btn" onclick="showUenoTab('uenosnack')">Ueno Snacks</button>
+      <button class="tab-btn" onclick="showUenoTab('akibafood')">Akiba Food</button>
+      <button class="tab-btn" onclick="showUenoTab('akibasnack')">Akiba Snacks</button>
+    </div>
+    <div id="ueno-uenofood" class="tab-content active">
+      <div class="place-card"><span class="place-badge badge-food">Beef Cutlet</span><div class="place-name">Gyukatsu Motomura Ueno</div><div class="place-meta">~5 mins walk from Ueno Station · Hours: 11:00 AM – 10:00 PM</div><div class="place-desc">Famous beef cutlet experience.</div><div class="place-tags"><span class="place-tag">Gyukatsu set meal</span><span class="place-tag">130g beef cutlet set</span><span class="place-tag">Onsen egg</span><span class="place-tag">Barley rice upgrade</span></div></div>
+      <div class="place-card"><span class="place-badge badge-food">Sushi</span><div class="place-name">Sushi Ninomiya Tokyo Ueno</div><div class="place-meta">~2 mins walk from Ueno Station · Hours: 11:00 AM – 11:00 PM</div><div class="place-desc">Affordable high-quality sushi.</div><div class="place-tags"><span class="place-tag">Nigiri assortment</span><span class="place-tag">Chutoro</span><span class="place-tag">Uni</span><span class="place-tag">Chawanmushi</span></div></div>
+      <div class="place-card"><span class="place-badge badge-food">Traditional</span><div class="place-name">Inshotei</div><div class="place-meta">Inside Ueno Park · Hours: 11:00 AM – 3:00 PM / 5:00 PM – 9:00 PM</div><div class="place-desc">Traditional Japanese dining inside Ueno Park.</div><div class="place-tags"><span class="place-tag">Hanakago lunch set</span><span class="place-tag">Tofu dishes</span><span class="place-tag">Seasonal set meal</span></div></div>
+      <div class="place-card"><span class="place-badge badge-food">Tempura</span><div class="place-name">Tensuzu</div><div class="place-meta">~10 mins walk from Ueno Station · Hours: 11:00 AM – 2:30 PM / 4:30 PM – 9:00 PM</div><div class="place-desc">Authentic tempura restaurant.</div><div class="place-tags"><span class="place-tag">Tempura set meal</span><span class="place-tag">Tendon</span><span class="place-tag">Chef's seasonal tempura</span></div></div>
+      <div class="place-card"><span class="place-badge badge-food">Soba</span><div class="place-name">Ueno Yabu Soba</div><div class="place-meta">~5 mins walk from Ueno Station · Hours: 11:30 AM – 9:00 PM</div><div class="place-desc">Classic Edo-style soba.</div><div class="place-tags"><span class="place-tag">Zaru soba</span><span class="place-tag">Tempura soba</span><span class="place-tag">Duck soba</span></div></div>
+    </div>
+    <div id="ueno-uenosnack" class="tab-content">
+      <div class="place-card"><span class="place-badge badge-snack">Street Food</span><div class="place-name">Niku no Ohyama</div><div class="place-meta">~2 mins from Ameyoko Main Street · Hours: 11:00 AM – 11:00 PM</div><div class="place-desc">Legendary menchi katsu. Most famous snack in Ameyoko. Over 4,500 reviews.</div><div class="place-tags"><span class="place-tag">Special Menchi Katsu</span><span class="place-tag">Wagyu Menchi Katsu</span><span class="place-tag">Croquette</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Dessert</span><div class="place-name">Anmitsu Mihashi Ueno Main Store</div><div class="place-meta">~3 mins walk from Ueno Station · Hours: 10:30 AM – 9:00 PM</div><div class="place-desc">One of Tokyo's most famous dessert shops. Over 2,800 reviews.</div><div class="place-tags"><span class="place-tag">Anmitsu</span><span class="place-tag">Matcha Anmitsu</span><span class="place-tag">Shiratama</span><span class="place-tag">Green Tea</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Taiyaki</span><div class="place-name">Ueno Taiyaki</div><div class="place-meta">~8 mins walk from Ueno Station · Hours: 10:30 AM – 7:00 PM</div><div class="place-desc">Freshly made taiyaki. Crispy outside, soft inside. Local favorite.</div><div class="place-tags"><span class="place-tag">Red Bean Taiyaki</span><span class="place-tag">Custard Taiyaki</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Takoyaki</span><div class="place-name">Jyugemu Takoyaki Ueno</div><div class="place-meta">~5 mins walk from Ueno Station · Hours: 11:00 AM – 10:30 PM</div><div class="place-desc">Osaka-style takoyaki. Freshly made easy grab-and-go snack.</div><div class="place-tags"><span class="place-tag">Classic Takoyaki</span><span class="place-tag">Negi Takoyaki</span><span class="place-tag">Cheese Takoyaki</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Fruit</span><div class="place-name">Ameyoko Fruit Stalls</div><div class="place-meta">Inside Ameyoko Market · Hours: 10:00 AM – 7:00 PM</div><div class="place-desc">Refreshing fresh fruit snacks while exploring Ueno. Great for photos.</div><div class="place-tags"><span class="place-tag">Strawberry Cup</span><span class="place-tag">Shine Muscat Grapes</span><span class="place-tag">Melon Cup</span><span class="place-tag">Mixed Fruit Cup</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Souvenir Shopping</span><div class="place-name">Niki no Kashi</div><div class="place-meta">~5 mins walk from Ueno Station · Hours: 10:00 AM – 8:00 PM</div><div class="place-desc">Huge selection of Japanese snacks. Popular souvenir stop.</div><div class="place-tags"><span class="place-tag">Tokyo Banana</span><span class="place-tag">KitKat Japan Flavors</span><span class="place-tag">Royce Chocolate</span><span class="place-tag">Matcha Snacks</span></div></div>
+    </div>
+    <div id="ueno-akibafood" class="tab-content">
+      <div class="place-card"><span class="place-badge badge-food">Sandwiches</span><div class="place-name">SANDO LAB TOKYO</div><div class="place-meta">Inside Don Quijote Akihabara · Hours: 10:30 AM – 10:00 PM</div><div class="place-desc">Viral Tokyo snack. Easy grab-and-go while shopping.</div><div class="place-tags"><span class="place-tag">Double Egg Sando</span><span class="place-tag">Katsu Sando</span><span class="place-tag">Strawberry Dessert Sando</span></div></div>
+      <div class="place-card"><span class="place-badge badge-food">Belgian Fries</span><div class="place-name">bintje. Belgian Frites Akihabara</div><div class="place-meta">~5 mins walk from Akihabara Station · Hours: 12:00 PM – 7:00 PM</div><div class="place-desc">Unique snack option. Popular on Junk Street.</div><div class="place-tags"><span class="place-tag">Belgian Fries</span><span class="place-tag">Truffle Mayo</span><span class="place-tag">Cheese Sauce Fries</span></div></div>
+      <div class="place-card"><span class="place-badge badge-food">Honey Toast</span><div class="place-name">Honey Toast Cafe Akihabara</div><div class="place-meta">~4 mins walk from Akihabara Station · Hours: 11:00 AM – 9:00 PM</div><div class="place-desc">Tokyo's famous honey toast experience. Great for sharing.</div><div class="place-tags"><span class="place-tag">Honey Toast</span><span class="place-tag">Matcha Honey Toast</span><span class="place-tag">Ice Cream Toppings</span></div></div>
+    </div>
+    <div id="ueno-akibasnack" class="tab-content">
+      <div class="place-card"><span class="place-badge badge-snack">Taiyaki</span><div class="place-name">Kurikoan</div><div class="place-meta">~1 min walk from Akihabara Station · Hours: 10:00 AM – 9:00 PM</div><div class="place-desc">Iconic Japanese street snack. Freshly made. One of the most popular snack stops in Akihabara.</div><div class="place-tags"><span class="place-tag">Taiyaki</span><span class="place-tag">Custard Taiyaki</span><span class="place-tag">Magikarp Taiyaki (seasonal)</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Dessert</span><div class="place-name">Cow Cow Kitchen Akihabara</div><div class="place-meta">Inside Atre Akihabara 1 · Hours: 10:00 AM – 9:00 PM</div><div class="place-desc">One of the highest-rated dessert shops in the area. Perfect afternoon snack.</div><div class="place-tags"><span class="place-tag">Milk Pie</span><span class="place-tag">Cream Puff</span><span class="place-tag">Seasonal Matcha Milk Pie</span></div></div>
+      <div class="place-card"><span class="place-badge badge-snack">Snack Shopping</span><div class="place-name">Nippon Department Store Shokuhinkan</div><div class="place-meta">Inside CHABARA · Hours: 11:00 AM – 8:00 PM</div><div class="place-desc">Thousands of snacks from all over Japan.</div><div class="place-tags"><span class="place-tag">Regional KitKats</span><span class="place-tag">Matcha Snacks</span><span class="place-tag">Hokkaido Cookies</span><span class="place-tag">Regional Limited-Edition Snacks</span></div></div>
+    </div>
+  </div>
+
+  <!-- KONBINI -->
+  <div id="section-konbini" style="display:none">
+    <div class="section-label">Must-try konbini grabs</div>
+    <div id="konbiniList"></div>
+  </div>
+
+  <!-- NOTES -->
+  <div id="section-notes" style="display:none">
+    <div id="notesContainer"></div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div id="section-checklist" style="display:none">
+    <div id="checklistContainer"></div>
+  </div>
+
+</div>
+<script>
+const days=[
+  {num:1,date:"Jun 8",title:"Manila → Narita → Shinjuku",sub:"Soft Tokyo arrival",vibe:{Mood:"Soft arrival",Energy:"Keep light",Goal:"Arrive safely",Memory:"Omoide Yokocho walk"},items:[{time:"9:00 AM",act:"Airport check-in + Immigration",t:"Walking",note:"Terminal 1 – PAGS. Prepare passport."},{time:"1:30 PM",act:"Boarding time",t:"—",note:"Download offline maps, prep chargers."},{time:"2:50 PM",act:"Flight departs Manila",t:"Plane",note:"Manila → Narita"},{time:"8:20 PM",act:"Arrive Narita Airport",t:"Walking",note:"Immigration + baggage claim"},{time:"9:20 PM",act:"Activate eSIM + ATM + Suica",t:"Walking",note:"Set up everything at airport"},{time:"9:40 PM",act:"Narita Express to Shinjuku",t:"Train",note:"Follow N'EX signs – ~1hr 20min"},{time:"10:55 PM",act:"Taxi to APA Hotel (GO App)",t:"Taxi",note:"Recommended with luggage"},{time:"11:10 PM",act:"Hotel check-in",t:"—",note:"APA Hotel Shinjuku Kabukicho Tower"},{time:"11:15 PM",act:"Konbini haul – 7-Eleven",t:"Walking",note:"Onigiri + egg sandwich"},{time:"11:40 PM",act:"Explore Shinjuku vibes",t:"Walking",note:"Optional: Tokyu Kabukicho Tower if rain"}],tips:[{title:"N'EX ticket",text:"Find JR EAST counter or green ticket machine. Buy reserved seat to Shinjuku."},{title:"Best exit",text:"JR Shinjuku East Exit. Taxi to hotel recommended on first night."}]},
+  {num:2,date:"Jun 9",title:"Hakone + Mt. Fuji Day",sub:"Scenic adventure – most tiring day",vibe:{Mood:"Scenic adventure",Energy:"MOST tiring",Goal:"See Mt. Fuji + Hakone",Memory:"First Fuji sighting"},items:[{time:"6:00 AM",act:"Wake up + prepare",t:"—",note:"Early adventure day"},{time:"7:00 AM",act:"Quick konbini breakfast",t:"Walking",note:"Eat before the tour"},{time:"7:15 AM",act:"Walk to meeting point",t:"Walking",note:"MODE Gakuen Cocoon Tower via Google Maps"},{time:"7:35 AM",act:"Tour check-in",t:"Walking",note:"Prepare Klook QR code + passport"},{time:"7:45 AM",act:"Tour departs",t:"Bus",note:"Hakone + Mt. Fuji Klook tour"},{time:"Morning",act:"Owakudani volcanic valley",t:"Bus",note:"Famous volcanic valley – black eggs!"},{time:"Morning",act:"Hakone Shrine",t:"Walking",note:"Iconic torii gate by the lake"},{time:"Afternoon",act:"Ropeway + Lake Area",t:"Ropeway",note:"Depends on weather/schedule"},{time:"Afternoon",act:"Mt. Fuji viewpoints",t:"Bus",note:"Visibility depends on weather"},{time:"Evening",act:"Return to Shinjuku",t:"Bus",note:"Rest early – big day tomorrow"}],tips:[{title:"What to bring",text:"Portable charger, umbrella, water bottle, light jacket, passport, snacks."},{title:"Weather note",text:"Mt. Fuji visibility depends on weather. Hakone is still beautiful even in rain."}]},
+  {num:3,date:"Jun 10",title:"Shinjuku → Ueno → Akihabara",sub:"Peak anime + electronics day",vibe:{Mood:"Peak anime chaos",Energy:"Medium-high",Goal:"Akihabara experience",Memory:"First Akihabara night"},items:[{time:"8:00 AM",act:"Slow breakfast – recovery morning",t:"Walking",note:"After Hakone – take it easy"},{time:"9:00 AM",act:"Shinjuku Gyoen",t:"Walking",note:"Calm Tokyo vibes + nature"},{time:"10:30 AM",act:"Transit to Ueno",t:"Train",note:"JR Yamanote Line"},{time:"11:00 AM",act:"Ueno Exploration",t:"Walking",note:"Park + local Tokyo atmosphere"},{time:"12:30 PM",act:"Lunch near Ueno",t:"Walking",note:"Go! Go! Curry or nearby spots"},{time:"1:30 PM",act:"Transit to Akihabara",t:"Train",note:"Short JR ride"},{time:"2:00 PM",act:"Akihabara Exploration",t:"Walking",note:"Anime / electronics / gaming"},{time:"2:30 PM",act:"Mandarake Complex",t:"Walking",note:"Iconic anime + manga + figures. Min 45 min. Wallet danger: HIGH"},{time:"4:00 PM",act:"Radio Kaikan",t:"Walking",note:"Anime figures + collectibles"},{time:"5:00 PM",act:"Gachapon Hall + Arcades",t:"Walking",note:"Bring coins! Retro Tokyo vibes"},{time:"7:00 PM",act:"Ichiran dinner",t:"Walking",note:"Ramen night – private booth magic"},{time:"8:00 PM",act:"Kabukicho / Donki night walk",t:"Walking",note:"Tokyo neon atmosphere"}],tips:[{title:"Mandarake tip",text:"Multiple floors. Budget min 45 min–1 hour. Cash + card accepted."},{title:"What to bring",text:"Eco bag, coins for gachapon, portable charger, comfortable shoes."}]},
+  {num:4,date:"Jun 11",title:"Daikanyama → Nakameguro → Marunouchi",sub:"Most cinematic Tokyo day",vibe:{Mood:"MOST cinematic",Energy:"High walk, relaxed pace",Goal:"Aesthetic neighborhoods",Memory:"Nakameguro + Marunouchi night"},items:[{time:"9:15 AM",act:"Transit to Daikanyama",t:"Train",note:"JR + Tokyu Toyoko Line"},{time:"9:45 AM",act:"IVY PLACE Breakfast",t:"Walking",note:"MOST cinematic breakfast spot"},{time:"11:00 AM",act:"Daikanyama Exploration",t:"Walking",note:"Lifestyle / bookstore / café district"},{time:"12:30 PM",act:"Walk toward Nakameguro",t:"Walking",note:"Scenic neighborhood walk"},{time:"1:00 PM",act:"Nakameguro Cafés",t:"Walking",note:"Riverside Tokyo vibes"},{time:"3:00 PM",act:"Meguro River Walk",t:"Walking",note:"Relaxed Tokyo atmosphere"},{time:"4:30 PM",act:"AFURI Dinner – Ebisu",t:"Walking",note:"Famous yuzu ramen"},{time:"6:00 PM",act:"Lashinbang Shinjuku Marui Annex",t:"Train",note:"Anime shopping – closes ~8 PM"},{time:"7:45 PM",act:"Marunouchi Night Walk",t:"Walking",note:"Elegant Tokyo night lights"}],tips:[{title:"Lashinbang tip",text:"Closes around 8 PM. Budget 45 min–1 hour."},{title:"Camera day!",text:"Nakameguro + Marunouchi at night = peak photo opportunities."}]},
+  {num:5,date:"Jun 12",title:"Full Shinjuku Recovery Day",sub:"Cozy recovery + shopping",vibe:{Mood:"Cozy recovery",Energy:"Medium/relaxed",Goal:"Slow exploration + shopping",Memory:"Golden Gai night"},items:[{time:"9:30 AM",act:"Slow wake + konbini run",t:"Walking",note:"Chill Tokyo morning"},{time:"10:00 AM",act:"Shinjuku Central Park",t:"Walking",note:"Calm recovery vibes"},{time:"11:00 AM",act:"Shopping – Donki / Uniqlo / Lumine",t:"Walking",note:"All walkable from hotel"},{time:"12:30 PM",act:"Udon Shin Lunch",t:"Walking",note:"Famous udon spot – go before peak queue"},{time:"1:30 PM",act:"Kinokuniya Bookstore",t:"Walking",note:"Japanese books / manga / stationery"},{time:"2:30 PM",act:"Café Break",t:"Walking",note:"Café Aaliya or nearby"},{time:"3:30 PM",act:"Lashinbang Shinjuku Marui Annex",t:"Walking",note:"Anime shopping – closes ~8 PM"},{time:"5:00 PM",act:"Don Quijote last shopping",t:"Walking",note:"Souvenirs + snacks"},{time:"6:30 PM",act:"Golden Gai Exploration",t:"Walking",note:"Tokyo night alleys – iconic"},{time:"8:00 PM",act:"Optional late dinner",t:"Walking",note:"Ichiran / nearby ramen"}],tips:[{title:"Golden Gai",text:"Narrow alleys with tiny bars – just walk in confidently. Best after 8 PM."},{title:"Ichiran walk",text:"Only 5-8 min from APA Hotel. Look for bright RED signage."}]},
+  {num:6,date:"Jun 13",title:"Gotokuji → Shimokitazawa",sub:"Indie / cozy neighborhood day",vibe:{Mood:"Indie + cozy",Energy:"Relaxed-medium",Goal:"Local Tokyo neighborhoods",Memory:"Shimokitazawa wandering"},items:[{time:"9:20 AM",act:"Transit to Gotokuji",t:"Train",note:"Odakyu Line from Shinjuku"},{time:"10:00 AM",act:"Gotokuji Temple",t:"Walking",note:"Famous lucky cat temple"},{time:"11:30 AM",act:"Café near temple",t:"Walking",note:"Rest after temple"},{time:"12:00 PM",act:"Transit to Shimokitazawa",t:"Train",note:"Short Odakyu Line ride"},{time:"12:20 PM",act:"Shimokitazawa Exploration",t:"Walking",note:"Vintage / music / thrift district"},{time:"1:00 PM",act:"Lunch in Shimokitazawa",t:"Walking",note:"Curry / café / thrift district food"},{time:"2:00 PM",act:"Vintage Shopping",t:"Walking",note:"Thrift stores + local fashion"},{time:"3:30 PM",act:"Shiro-Hige's Cream Puff Factory",t:"Walking",note:"Totoro-themed desserts!"},{time:"5:00 PM",act:"Return to Shinjuku",t:"Train",note:"Odakyu Line"},{time:"Evening",act:"Kabukicho / Donki / Ichiran",t:"Walking",note:"Flexible chill night"}],tips:[{title:"Shimokitazawa",text:"Best strategy = wander randomly. 3–5 hours easy. Bring cash for small vintage shops."},{title:"Totoro cream puffs",text:"Shiro-Hige's Cream Puff Factory – must visit! Very photogenic."}]},
+  {num:7,date:"Jun 14",title:"CCF Tokyo → Shibuya Day",sub:"Emotional final weekend in Tokyo",vibe:{Mood:"Emotional / final vibes",Energy:"Medium",Goal:"Iconic Shibuya experience",Memory:"Shibuya crossing + curry"},items:[{time:"8:30 AM",act:"Quick konbini breakfast",t:"Walking",note:"Sunday easy morning"},{time:"9:00 AM",act:"Transit to CCF Tokyo",t:"Train",note:"Use Google Maps LIVE"},{time:"Morning",act:"CCF Tokyo Service",t:"Walking",note:"Worship / service time"},{time:"12:00 PM",act:"Lunch near church",t:"Walking",note:"Nearby café / restaurant"},{time:"1:00 PM",act:"Transit to Shibuya",t:"Train",note:"Easy JR ride"},{time:"1:30 PM",act:"Shibuya Exploration",t:"Walking",note:"Big Tokyo energy"},{time:"3:00 PM",act:"Starbucks + TSUTAYA",t:"Walking",note:"Famous Scramble Crossing view from upper floors"},{time:"3:30 PM",act:"Shibuya Shopping",t:"Walking",note:"PARCO / Mega Donki / fashion"},{time:"4:30 PM",act:"Miyashita Park",t:"Walking",note:"Rooftop / chill vibes – best at sunset"},{time:"5:30 PM",act:"Joto Curry Dinner",t:"Walking",note:"Katsu curry + cheese + soft egg. ~¥1,000–2,000."},{time:"7:30 PM",act:"Return to Shinjuku",t:"Train",note:"JR Yamanote Line"}],tips:[{title:"Scramble Crossing",text:"Best view from upper floors of Starbucks. Go late afternoon / sunset."},{title:"Joto Curry",text:"Katsu curry + cheese + soft egg. Spice level 2–3 for first try."}]},
+  {num:8,date:"Jun 15",title:"Final Morning → Narita → Manila",sub:"Goodbye Tokyo",vibe:{Mood:"Emotional goodbye",Energy:"LOW stress",Goal:"Smooth airport transfer",Memory:"Final Narita Express sunrise"},items:[{time:"3:30 AM",act:"Wake up – final Tokyo morning",t:"—",note:"Set multiple alarms"},{time:"3:45 AM",act:"Final luggage check",t:"—",note:"Passport / Suica / chargers / merch"},{time:"4:00 AM",act:"Hotel checkout",t:"—",note:"Prepare tickets + luggage"},{time:"4:10 AM",act:"Taxi to JR Shinjuku Station",t:"Taxi",note:"GO App / Uber. Highly recommended with luggage."},{time:"~4:50 AM",act:"Narita Express to Narita",t:"Train",note:"Final Tokyo sunrise ride – ~40-60 min"},{time:"5:30 AM",act:"Airport check-in + Immigration",t:"Walking",note:"Plenty of time – no rushing"},{time:"8:15 AM",act:"Airport free time",t:"Walking",note:"Last snacks + shopping"},{time:"9:15 AM",act:"Flight PR431 departs",t:"Plane",note:"Goodbye Tokyo"},{time:"1:05 PM",act:"Arrive Manila",t:"Plane",note:"End of trip"}],tips:[{title:"Final packing check",text:"Passport, wallet/cards, Suica, chargers, medicines, ALL anime + merch!"},{title:"N'EX tip",text:"Departs Shinjuku ~4:50 AM. Reserved seat. ~40-60 min to Narita."}]},
+];
+
+const konbiniData=[{store:"FamilyMart",cls:"fm",item:"Famichiki",why:"Famous Japanese fried chicken, best eaten hot"},{store:"7-Eleven",cls:"seven",item:"Tamago Sando",why:"Soft bread + creamy egg filling – viral Japan snack"},{store:"Lawson",cls:"lawson",item:"Premium Roll Cake",why:"Famous fresh cream dessert, popular late-night sweet"},{store:"Lawson",cls:"lawson",item:"Karaage-kun Chicken Bites",why:"Cult favorite fried chicken bites"},{store:"7-Eleven",cls:"seven",item:"Tuna Mayo Onigiri",why:"Classic Japanese rice ball snack"},{store:"Lawson",cls:"lawson",item:"Akuma Onigiri",why:"Savory rice ball with tempura flakes and dashi flavor"},{store:"Any",cls:"any",item:"Matcha Desserts",why:"Seasonal Japan-exclusive sweets"},{store:"7-Eleven",cls:"seven",item:"Ohayo Brûlée Ice Cream",why:"Viral crème brûlée-style ice cream"},{store:"Lawson/7-Eleven",cls:"any",item:"Konbini Iced Coffee",why:"Cheap but surprisingly high-quality coffee"},{store:"Any",cls:"any",item:"Japanese KitKats",why:"Matcha, hojicha, strawberry, sakura flavors"},{store:"FamilyMart",cls:"fm",item:"Famima Socks",why:"Trending Japanese souvenir"},{store:"7-Eleven",cls:"seven",item:"Smoothie Machine Drinks",why:"Fresh blended fruit smoothies made in-store"},{store:"Lawson",cls:"lawson",item:"Butter Dorayaki",why:"Japanese pancake dessert with butter filling"},{store:"7-Eleven",cls:"seven",item:"Salad Chicken",why:"Healthy high-protein snack option"}];
+
+const noteSections=[{key:"mustbuy",cat:"Must buy",items:["Matcha Cream","Wound Cream","Gokyujin Premium","Anessa Sunscreen"]},{key:"ramen",cat:"Ramen spots",items:["Hakata Furyu – Akihabara","Hakata Furyu – Shinjuku","Oreyu Shio Ramen – Shibuya Crossing","Menya Musashi Bukotsu Soden – Tsukemen"]},{key:"airport",cat:"Airport checklist",items:["Passport","Boarding pass / PAL booking","BDO JCB Platinum","RCBC JCB Platinum (backup)","Metrobank Travel Visa Signature","Power bank (carry-on only)","Visit Japan Web QR – screenshots"]}];
+let noteData={},addingNote={},editingNote={};
+noteSections.forEach(s=>{noteData[s.key]=[...s.items];});
+
+let checkItems=["Passport","Boarding pass / PAL booking","BDO JCB Platinum card","RCBC JCB Platinum (backup)","Metrobank Travel Visa Signature","Power bank (carry-on only)","Visit Japan Web QR – screenshots","Portable charger + cables","Comfortable walking shoes","Umbrella (rain backup)","Eco bag for shopping","Coins for gachapon / arcades","Water bottle","Light jacket (for Hakone/cool days)","Suica card (top up at airport)"];
+let checkStates={},editingCheck={},addingCheck=false;
+let expanded={};
+
+function showDay(idx){
+  document.querySelectorAll('.day-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  const d=days[idx];
+  let h=`<div class="day-header"><div class="day-badge">Day ${d.num}</div><div><div class="day-title">${d.title}</div><div class="day-sub">${d.date} · ${d.sub}</div></div></div><div class="timeline">`;
+  d.items.forEach((item,i)=>{
+    const open=expanded[idx+'-'+i]?'open':'';
+    h+=`<div class="tl-item"><div class="tl-card" onclick="toggleExp(${idx},${i})"><div class="tl-time">${item.time}</div><div class="tl-act">${item.act}</div><div class="tl-transport">${item.t}</div><div class="tl-note ${open}">${item.note}</div></div></div>`;
+  });
+  h+='</div>';
+  if(d.tips.length){h+='<div class="section-label">Tips for this day</div>';d.tips.forEach(t=>h+=`<div class="tip-card"><div class="tip-title">${t.title}</div><div class="tip-text">${t.text}</div></div>`);}
+  h+='<div class="section-label">Day vibe</div><div class="vibe-grid">';
+  Object.entries(d.vibe).forEach(([k,v])=>h+=`<div class="vibe-item"><div class="vibe-k">${k}</div><div class="vibe-v">${v}</div></div>`);
+  h+='</div>';
+  document.getElementById('dayContent').innerHTML=h;
+}
+function toggleExp(di,ii){expanded[di+'-'+ii]=!expanded[di+'-'+ii];showDay(di);}
+
+function showAirTab(tab){
+  document.querySelectorAll('#section-airport .tab-btn').forEach((b,i)=>b.classList.toggle('active',['narita','departure','lounge','checklist'][i]===tab));
+  document.querySelectorAll('#section-airport .tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('air-'+tab).classList.add('active');
+}
+function showShinjTab(tab){
+  document.querySelectorAll('#section-shinjuku .tab-btn').forEach((b,i)=>b.classList.toggle('active',['shopping','dessert','curry','anime'][i]===tab));
+  document.querySelectorAll('#section-shinjuku .tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('shinj-'+tab).classList.add('active');
+}
+function showUenoTab(tab){
+  document.querySelectorAll('#section-ueno .tab-btn').forEach((b,i)=>b.classList.toggle('active',['uenofood','uenosnack','akibafood','akibasnack'][i]===tab));
+  document.querySelectorAll('#section-ueno .tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ueno-'+tab).classList.add('active');
+}
+
+function renderNotes(){
+  let html='';
+  noteSections.forEach(s=>{
+    html+=`<div class="note-section"><div class="note-sec-header"><span class="note-cat">${s.cat}</span><button class="note-add-btn" onclick="startAdd('${s.key}')">+ Add</button></div><div class="note-wrap">`;
+    noteData[s.key].forEach((item,i)=>{
+      const isEd=editingNote[s.key+'_'+i];
+      html+=`<div class="note-row"><input class="note-input${isEd?' editing':''}" value="${item.replace(/"/g,'&quot;')}" ${isEd?'':'readonly'} id="ni-${s.key}-${i}" onblur="saveNote('${s.key}',${i})"/><div class="note-actions">`;
+      if(isEd) html+=`<button class="icon-btn save" onclick="saveNote('${s.key}',${i})">✓</button>`;
+      else html+=`<button class="icon-btn" onclick="editNote('${s.key}',${i})">✎</button>`;
+      html+=`<button class="icon-btn" onclick="deleteNote('${s.key}',${i})">✕</button></div></div>`;
+    });
+    html+='</div>';
+    if(addingNote[s.key]) html+=`<div class="new-row"><input class="new-input" id="na-${s.key}" placeholder="Add a note..." onkeydown="if(event.key==='Enter')confirmAdd('${s.key}')"><button class="save-btn" onclick="confirmAdd('${s.key}')">Save</button><button class="cancel-btn" onclick="cancelAdd('${s.key}')">✕</button></div>`;
+    html+='</div>';
+  });
+  document.getElementById('notesContainer').innerHTML=html;
+  Object.keys(editingNote).forEach(k=>{if(editingNote[k]){const[sec,idx]=k.split('_');const el=document.getElementById('ni-'+sec+'-'+idx);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}});
+  Object.keys(addingNote).forEach(k=>{if(addingNote[k]){const el=document.getElementById('na-'+k);if(el)el.focus();}});
+}
+function editNote(sec,idx){editingNote[sec+'_'+idx]=true;renderNotes();}
+function saveNote(sec,idx){const el=document.getElementById('ni-'+sec+'-'+idx);if(el){const v=el.value.trim();if(v)noteData[sec][idx]=v;else noteData[sec].splice(idx,1);}delete editingNote[sec+'_'+idx];renderNotes();}
+function deleteNote(sec,idx){noteData[sec].splice(idx,1);delete editingNote[sec+'_'+idx];renderNotes();}
+function startAdd(sec){addingNote[sec]=true;renderNotes();}
+function cancelAdd(sec){delete addingNote[sec];renderNotes();}
+function confirmAdd(sec){const el=document.getElementById('na-'+sec);if(el&&el.value.trim())noteData[sec].push(el.value.trim());delete addingNote[sec];renderNotes();}
+
+function renderChecklist(){
+  const done=Object.values(checkStates).filter(Boolean).length;
+  let h=`<div class="cl-header"><span class="section-label" style="margin:0">Packing list</span><span class="cl-progress">${done} / ${checkItems.length} packed</span></div><div class="cl-wrap">`;
+  checkItems.forEach((item,i)=>{
+    const isEd=editingCheck[i];const checked=checkStates[i]?'checked':'';const tc=(!isEd&&checkStates[i])?'done':'';
+    h+=`<div class="cl-row"><div class="cl-tap" onclick="toggleCheck(${i})"><div class="cl-box ${checked}">${checkStates[i]?'✓':''}</div></div><input class="cl-text ${tc}${isEd?' editing':''}" value="${item.replace(/"/g,'&quot;')}" ${isEd?'':'readonly'} id="ci-${i}" onblur="saveCheck(${i})" onkeydown="if(event.key==='Enter')saveCheck(${i})"/><div class="cl-actions">`;
+    if(isEd) h+=`<button class="icon-btn save" onclick="saveCheck(${i})">✓</button>`;
+    else h+=`<button class="icon-btn" onclick="editCheck(${i})">✎</button>`;
+    h+=`<button class="icon-btn" onclick="deleteCheck(${i})">✕</button></div></div>`;
+  });
+  h+='</div>';
+  if(addingCheck) h+=`<div class="new-row"><input class="new-input" id="ci-new" placeholder="Add item..." onkeydown="if(event.key==='Enter')confirmAddCheck()"><button class="save-btn" onclick="confirmAddCheck()">Save</button><button class="cancel-btn" onclick="cancelAddCheck()">✕</button></div>`;
+  else h+=`<button class="note-add-btn" style="margin-top:8px" onclick="startAddCheck()">+ Add item</button>`;
+  document.getElementById('checklistContainer').innerHTML=h;
+  Object.keys(editingCheck).forEach(i=>{if(editingCheck[i]){const el=document.getElementById('ci-'+i);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}});
+  if(addingCheck){const el=document.getElementById('ci-new');if(el)el.focus();}
+}
+function toggleCheck(i){checkStates[i]=!checkStates[i];renderChecklist();}
+function editCheck(i){editingCheck[i]=true;renderChecklist();}
+function saveCheck(i){const el=document.getElementById('ci-'+i);if(el){const v=el.value.trim();if(v)checkItems[i]=v;else{checkItems.splice(i,1);delete checkStates[i];}}delete editingCheck[i];renderChecklist();}
+function deleteCheck(i){checkItems.splice(i,1);delete checkStates[i];delete editingCheck[i];renderChecklist();}
+function startAddCheck(){addingCheck=true;renderChecklist();}
+function cancelAddCheck(){addingCheck=false;renderChecklist();}
+function confirmAddCheck(){const el=document.getElementById('ci-new');if(el&&el.value.trim())checkItems.push(el.value.trim());addingCheck=false;renderChecklist();}
+
+function showSection(id){
+  ['days','airport','shinjuku','ueno','konbini','notes','checklist'].forEach(s=>document.getElementById('section-'+s).style.display=s===id?'block':'none');
+  document.querySelectorAll('#mainNav .nav-btn').forEach((b,i)=>b.classList.toggle('active',['days','airport','shinjuku','ueno','konbini','notes','checklist'][i]===id));
+}
+
+const dn=document.getElementById('dayNav');
+days.forEach((d,i)=>{const b=document.createElement('button');b.className='day-btn'+(i===0?' active':'');b.textContent='Day '+d.num;b.onclick=()=>showDay(i);dn.appendChild(b);});
+document.getElementById('konbiniList').innerHTML=konbiniData.map(k=>`<div class="konbini-card"><span class="k-store ${k.cls}">${k.store}</span><div><div class="k-item">${k.item}</div><div class="k-why">${k.why}</div></div></div>`).join('');
+showDay(0);renderNotes();renderChecklist();
+</script>
+</body>
+</html>
